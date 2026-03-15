@@ -30,7 +30,7 @@ async def deploy(request: DeployRequest):
         if not os.path.exists(dockerfile):
             generate_dockerfile(stack, port, repo_path)
 
-        app_name = request.repo_url.rstrip('/').split('/')[-1].replace('.git', '')
+        app_name = request.repo_url.rstrip('/').split('/')[-1].replace('.git', '').lower()
         print(f"6. app_name: {app_name}")
         
         url = build_and_run(repo_path, app_name, port)
