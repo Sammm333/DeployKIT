@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DeployKit</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --border: #1e1e1e;
+    --accent: #00ff88;
+    --text: #f0f0f0;
+    --muted: #555;
+    --error: #ff4444;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,255,136,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,136,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 580px;
+  }
+
+  .header {
+    margin-bottom: 3rem;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards;
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 2.2rem;
+    letter-spacing: -0.03em;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .logo-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 12px var(--accent);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  .tagline {
+    color: var(--muted);
+    font-size: 0.78rem;
+    margin-top: 0.4rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.6s ease 0.15s forwards;
+  }
+
+  .label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 0.6rem;
+  }
+
+  .input-row {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  input {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,255,136,0.08);
+  }
+
+  input::placeholder { color: var(--muted); }
+
+  button {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1.4rem;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.2s, transform 0.15s;
+  }
+
+  button:hover { opacity: 0.85; transform: translateY(-1px); }
+  button:active { transform: translateY(0); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  .status {
+    margin-top: 1.5rem;
+    display: none;
+  }
+
+  .status.visible { display: block; }
+
+  .status-line {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .spinner {
+    width: 12px;
+    height: 12px;
+    border: 1.5px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    flex-shrink: 0;
+  }
+
+  .result {
+    margin-top: 1.5rem;
+    padding: 1.25rem;
+    background: rgba(0,255,136,0.05);
+    border: 1px solid rgba(0,255,136,0.15);
+    border-radius: 8px;
+    display: none;
+  }
+
+  .result.visible { display: block; }
+
+  .result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .result-row:last-child { margin-bottom: 0; }
+
+  .result-key { color: var(--muted); }
+
+  .result-val { color: var(--accent); }
+
+  .result-val a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .result-val a:hover { text-decoration: underline; }
+
+  .badge {
+    background: rgba(0,255,136,0.1);
+    color: var(--accent);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+  }
+
+  .error-box {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: rgba(255,68,68,0.05);
+    border: 1px solid rgba(255,68,68,0.2);
+    border-radius: 8px;
+    color: var(--error);
+    font-size: 0.8rem;
+    display: none;
+  }
+
+  .error-box.visible { display: block; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 8px var(--accent); }
+    50%       { box-shadow: 0 0 18px var(--accent); }
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="logo">
+      <div class="logo-dot"></div>
+      DeployKit
+    </div>
+    <div class="tagline">Paste a GitHub URL → get a live container</div>
+  </div>
+
+  <div class="card">
+    <div class="label">GitHub Repository URL</div>
+    <div class="input-row">
+      <input
+        type="text"
+        id="repoUrl"
+        placeholder="https://github.com/user/repo"
+      />
+      <button id="deployBtn" onclick="deploy()">Deploy</button>
+    </div>
+
+    <div class="status" id="status">
+      <div class="status-line">
+        <div class="spinner"></div>
+        <span id="statusText">Cloning repository...</span>
+      </div>
+    </div>
+
+    <div class="result" id="result">
+      <div class="result-row">
+        <span class="result-key">status</span>
+        <span class="badge">✓ running</span>
+      </div>
+      <div class="result-row">
+        <span class="result-key">stack</span>
+        <span class="result-val" id="resStack">—</span>
+      </div>
+      <div class="result-row">
+        <span class="result-key">port</span>
+        <span class="result-val" id="resPort">—</span>
+      </div>
+      <div class="result-row">
+        <span class="result-key">url</span>
+        <span class="result-val">
+          <a id="resUrl" href="#" target="_blank">—</a>
+        </span>
+      </div>
+    </div>
+
+    <div class="error-box" id="errorBox"></div>
+  </div>
+
+</div>
+<script src="script.js"></script>
+</body>
+</html>

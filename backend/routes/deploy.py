@@ -5,8 +5,14 @@ from services.detector import detect_stack, detect_port
 from services.generator import generate_dockerfile
 from services.docker import build_and_run
 import os
+import shutil
+import stat
 
 router = APIRouter()
+
+def remove_readonly(func, path, _):
+    os.chmod(path, stat.S_IWRITE)
+    func(path)
 
 class DeployRequest(BaseModel):
     repo_url: str
@@ -34,6 +40,10 @@ async def deploy(request: DeployRequest):
         print(f"6. app_name: {app_name}")
         
         url = build_and_run(repo_path, app_name, port)
+
+        shutil.rmtree(repo_path, onerror=remove_readonly)
+        print(f"7. cleaned up: {repo_path}")
+
         return {"success": True, "url": url, "stack": stack}
     
     except Exception as e:

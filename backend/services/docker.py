@@ -1,7 +1,7 @@
 import os
 import subprocess
 
-DOCKER = r"C:\Program Files\Docker\Docker\resources\bin\docker.exe"
+DOCKER = "docker"
 
 def build_and_run(repo_path: str, app_name: str, port: str) -> str:
     print(f"repo_path: {repo_path}")

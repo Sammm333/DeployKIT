@@ -1,6 +1,7 @@
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from routes.deploy import router as deploy_router
 
 
@@ -16,6 +17,5 @@ app.add_middleware(
 
 app.include_router(deploy_router, prefix="/api")
 
-@app.get("/")
-def read_root():
-    return {"message": "DeployKit API is running. Use /api/deploy to deploy your application."}
+
+app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
