@@ -32,16 +32,26 @@ function stopMessages() {
 }
 
 function showResult(data) {
-    const host = window.location.hostname;
-    const port = data.url.split(":").pop();
-    const url = `http://${host}:${port}`;
+  const host = window.location.hostname;
+  const url = `http://${host}:${data.url}`;
 
-    document.getElementById("resStack").textContent = data.stack;
-    document.getElementById("resPort").textContent = port;
-    document.getElementById("resUrl").textContent = url;
-    document.getElementById("resUrl").href = url;
-    document.getElementById("result").classList.add("visible");
+  document.getElementById("resStack").textContent = data.stack;
+  document.getElementById("resPort").textContent = data.url;
+  document.getElementById("resUrl").textContent = url;
+  document.getElementById("resUrl").href = url;
+  document.getElementById("result").classList.add("visible");
+
+  const btn = document.getElementById("downloadBtn");
+  btn.style.display = "block";
+  btn.onclick = () => {
+    const blob = new Blob([data.dockerfile], { type: "text/plain" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "Dockerfile";
+    a.click();
+  };
 }
+
 function showError(msg) {
   const errorBox = document.getElementById("errorBox");
   errorBox.textContent = "Error: " + msg;
@@ -52,6 +62,7 @@ function reset() {
   document.getElementById("result").classList.remove("visible");
   document.getElementById("errorBox").classList.remove("visible");
   document.getElementById("status").classList.remove("visible");
+  document.getElementById("downloadBtn").style.display = "none";
 }
 
 async function deploy() {

@@ -190,7 +190,6 @@
   .result-row:last-child { margin-bottom: 0; }
 
   .result-key { color: var(--muted); }
-
   .result-val { color: var(--accent); }
 
   .result-val a {
@@ -206,6 +205,23 @@
     padding: 0.2rem 0.5rem;
     border-radius: 4px;
     font-size: 0.7rem;
+  }
+
+  .download-btn {
+    display: none;
+    width: 100%;
+    margin-top: 1rem;
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid rgba(0,255,136,0.3);
+    padding: 0.6rem;
+    font-size: 0.8rem;
+  }
+
+  .download-btn:hover {
+    background: rgba(0,255,136,0.05);
+    opacity: 1;
+    transform: none;
   }
 
   .error-box {
@@ -284,6 +300,9 @@
           <a id="resUrl" href="#" target="_blank">—</a>
         </span>
       </div>
+      <button id="downloadBtn" class="download-btn">
+        ↓ Download Dockerfile
+      </button>
     </div>
 
     <div class="error-box" id="errorBox"></div>

@@ -1,25 +1,58 @@
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
+from services.git import clone_repo
+from services.detector import detect_stack, detect_port
+from services.generator import generate_dockerfile
+from services.docker import build_and_run
 import os
-import subprocess
+import shutil
+import stat
 
-DOCKER = "docker"
+router = APIRouter()
 
-def build_and_run(repo_path: str, app_name: str, port: str) -> str:
-    print(f"repo_path: {repo_path}")
-    print(f"Dockerfile exists: {os.path.exists(os.path.join(repo_path, 'Dockerfile'))}")
+def remove_readonly(func, path, _):
+    os.chmod(path, stat.S_IWRITE)
+    func(path)
 
-    subprocess.run(
-        [DOCKER, "build", "-t", app_name, "."],
-        cwd=repo_path,
-        check=True
-    )
+class DeployRequest(BaseModel):
+    repo_url: str
 
-    subprocess.run([DOCKER, "rm", "-f", app_name])
+@router.post("/deploy")
+async def deploy(request: DeployRequest):
+    try:
+        repo_path = clone_repo(request.repo_url)
+        print(f"1. repo_path: {repo_path}")
+        
+        stack = detect_stack(repo_path)
+        print(f"2. stack: {stack}")
+        
+        port = detect_port(stack, repo_path)
+        print(f"3. port: {port}")
 
-    subprocess.run([
-        DOCKER, "run", "-d",
-        "--name", app_name,
-        "-p", f"{port}:{port}",
-        app_name
-    ], check=True)
+        dockerfile = os.path.join(repo_path, 'Dockerfile')
+        print(f"4. Dockerfile exists: {os.path.exists(dockerfile)}")
+        print(f"5. Dockerfile path: {dockerfile}")
 
-    return f":{port}"
+        if not os.path.exists(dockerfile):
+            generate_dockerfile(stack, port, repo_path)
+
+        app_name = request.repo_url.rstrip('/').split('/')[-1].replace('.git', '').lower()
+        print(f"6. app_name: {app_name}")
+
+        dockerfile_content = open(os.path.join(repo_path, 'Dockerfile')).read()
+
+        url = build_and_run(repo_path, app_name, port)
+
+        shutil.rmtree(repo_path, onerror=remove_readonly)
+        print(f"7. cleaned up: {repo_path}")
+
+        return {
+            "success": True,
+            "url": port,
+            "stack": stack,
+            "dockerfile": dockerfile_content
+        }
+    
+    except Exception as e:
+        print(f"ERROR: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
