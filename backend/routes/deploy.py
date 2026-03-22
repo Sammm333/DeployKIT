@@ -38,13 +38,20 @@ async def deploy(request: DeployRequest):
 
         app_name = request.repo_url.rstrip('/').split('/')[-1].replace('.git', '').lower()
         print(f"6. app_name: {app_name}")
-        
+
+        dockerfile_content = open(os.path.join(repo_path, 'Dockerfile')).read()
+
         url = build_and_run(repo_path, app_name, port)
 
         shutil.rmtree(repo_path, onerror=remove_readonly)
         print(f"7. cleaned up: {repo_path}")
 
-        return {"success": True, "url": url, "stack": stack}
+        return {
+            "success": True,
+            "url": port,
+            "stack": stack,
+            "dockerfile": dockerfile_content
+        }
     
     except Exception as e:
         print(f"ERROR: {str(e)}")
