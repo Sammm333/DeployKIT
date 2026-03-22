@@ -32,15 +32,14 @@ function stopMessages() {
 }
 
 function showResult(data) {
-  const result = document.getElementById("result");
-  const url = data.url;
-
-  document.getElementById("resStack").textContent = data.stack;
-  document.getElementById("resPort").textContent = url.split(":").pop();
-  document.getElementById("resUrl").textContent = url;
-  document.getElementById("resUrl").href = url;
-
-  result.classList.add("visible");
+    const origin = window.location.hostname;
+    const url = `http://${origin}:${data.url.replace(':', '')}`;
+    
+    document.getElementById("resStack").textContent = data.stack;
+    document.getElementById("resPort").textContent = data.url.replace(':', '');
+    document.getElementById("resUrl").textContent = url;
+    document.getElementById("resUrl").href = url;
+    document.getElementById("result").classList.add("visible");
 }
 
 function showError(msg) {
@@ -91,7 +90,6 @@ async function deploy() {
   }
 }
 
-// deploy on Enter key
 document.getElementById("repoUrl").addEventListener("keydown", (e) => {
   if (e.key === "Enter") deploy();
 });

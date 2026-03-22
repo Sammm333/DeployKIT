@@ -22,4 +22,4 @@ def build_and_run(repo_path: str, app_name: str, port: str) -> str:
         app_name
     ], check=True)
 
-    return f"http://localhost:{port}"
+    return f":{port}"
