@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8000/api/deploy";
+const API_URL = `${window.location.origin}/api/deploy`;
 
 const messages = [
   "Cloning repository...",
