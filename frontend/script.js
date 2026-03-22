@@ -32,16 +32,16 @@ function stopMessages() {
 }
 
 function showResult(data) {
-    const origin = window.location.hostname;
-    const url = `http://${origin}:${data.url.replace(':', '')}`;
-    
+    const host = window.location.hostname;
+    const port = data.url.split(":").pop();
+    const url = `http://${host}:${port}`;
+
     document.getElementById("resStack").textContent = data.stack;
-    document.getElementById("resPort").textContent = data.url.replace(':', '');
+    document.getElementById("resPort").textContent = port;
     document.getElementById("resUrl").textContent = url;
     document.getElementById("resUrl").href = url;
     document.getElementById("result").classList.add("visible");
 }
-
 function showError(msg) {
   const errorBox = document.getElementById("errorBox");
   errorBox.textContent = "Error: " + msg;
