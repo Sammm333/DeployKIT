@@ -19,7 +19,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd ~/deploykit
+            cd ~/DeployKIT
             git pull
             docker compose down
             docker compose up --build -d
