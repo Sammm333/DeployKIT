@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from routes.deploy import router as deploy_router
+from prometheus_fastapi_instrumentator import Instrumentator
 
 
 
